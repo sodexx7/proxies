@@ -1,0 +1,8 @@
+.env
+temp
+
+node_modules/
+checklist.md
+
+artifacts/
+cache/
