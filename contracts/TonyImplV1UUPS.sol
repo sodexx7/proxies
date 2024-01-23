@@ -3,16 +3,11 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract TonyImplV2 is Initializable {
-
-    // Error: New storage layout is incompatible 
-    // New variables should be placed after all existing inherited variables
-    // address testAddress;
+contract TonyImplV1UUPS is Initializable,UUPSUpgradeable {
 
     uint256 _num;
-    uint256 _num1;
-    uint256 _num2;
 
     // Emitted when the stored value changes
     event ValueChanged(uint256 value);
@@ -26,8 +21,7 @@ contract TonyImplV2 is Initializable {
         return _num;
     }
 
-    function addOne() external {
-        _num = _num +1;
-    }
-
+    
+    // for test, ignore the onlyOwner check
+    function _authorizeUpgrade(address) internal override {}
 }

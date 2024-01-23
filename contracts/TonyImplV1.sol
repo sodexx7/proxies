@@ -10,8 +10,8 @@ contract TonyImplV1 is Initializable {
 
     // Variable `_num2` is immutable and will be initialized on the implementation
     // uint256 immutable _num2 = 5; 
-
-    uint256 constant _num3 = 5;
+    // Variable `_num3` is assigned an initial value
+    // uint256  _num3 = 5;
 
     // Emitted when the stored value changes
     event ValueChanged(uint256 value);
