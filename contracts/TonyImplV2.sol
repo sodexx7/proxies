@@ -5,8 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract TonyImplV2 is Initializable {
-
-    // Error: New storage layout is incompatible 
+    // Error: New storage layout is incompatible
     // New variables should be placed after all existing inherited variables
     // address testAddress;
 
@@ -21,13 +20,12 @@ contract TonyImplV2 is Initializable {
         _num = num;
         emit ValueChanged(num);
     }
-    
-    function retrieve() view external returns(uint256){
+
+    function retrieve() external view returns (uint256) {
         return _num;
     }
 
     function addOne() external {
-        _num = _num +1;
+        _num = _num + 1;
     }
-
 }

@@ -16,8 +16,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  * @author Tony
  * @notice
  */
-contract RewardTokenUpgrade is ERC20Upgradeable, Ownable2StepUpgradeable,UUPSUpgradeable {
-
+contract RewardTokenUpgrade is
+    ERC20Upgradeable,
+    Ownable2StepUpgradeable,
+    UUPSUpgradeable
+{
     function initialize() external initializer {
         // init parents contracts
         __ERC20_init("RewardToken", "RT");

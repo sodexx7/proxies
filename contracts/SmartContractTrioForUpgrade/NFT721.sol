@@ -5,8 +5,6 @@ import {IERC721, ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import {IERC2981, ERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 
-
-
 import {BitMaps} from "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
@@ -37,7 +35,9 @@ contract NFT721 is ERC721, ERC2981, Ownable2Step {
     // for simple show, currently ignore
     string public constant TOKEN_URI = "test url";
 
-    constructor(bytes32 merkleRoot) ERC721("NFT721", "NFT1") Ownable(msg.sender) {
+    constructor(
+        bytes32 merkleRoot
+    ) ERC721("NFT721", "NFT1") Ownable(msg.sender) {
         _merkleRoot = merkleRoot;
         // set the reward rate as 2.5%, the least price should bigger than 10**4wei
         _setDefaultRoyalty(owner(), 250);
@@ -46,9 +46,13 @@ contract NFT721 is ERC721, ERC2981, Ownable2Step {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC2981) returns (bool) {
-        return interfaceId == type(IERC721).interfaceId || interfaceId == type(IERC2981).interfaceId
-            || super.supportsInterface(interfaceId);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC2981) returns (bool) {
+        return
+            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IERC2981).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
@@ -56,13 +60,19 @@ contract NFT721 is ERC721, ERC2981, Ownable2Step {
      * check the paymentInfo directly by the msg.value, paymentInfo was not included in the proof. If need, can put the info
      * while buidling the merkle tree.
      */
-    function mintNftByProof(bytes32[] calldata proof, uint256 index) external payable {
+    function mintNftByProof(
+        bytes32[] calldata proof,
+        uint256 index
+    ) external payable {
         require(_totalSupply < MAX_SUPPLY, "Beyond totalSupply");
 
         // verify proof
         _verifyProof(proof, index, msg.sender);
 
-        require(msg.value >= 0.01 ether, "NOT Enough ETH to mint at a discount");
+        require(
+            msg.value >= 0.01 ether,
+            "NOT Enough ETH to mint at a discount"
+        );
 
         // check if the minter  claimed or not
         require(!BitMaps.get(_superMintList, index), "Already claimed");
@@ -90,15 +100,19 @@ contract NFT721 is ERC721, ERC2981, Ownable2Step {
         payable(owner()).transfer(address(this).balance);
     }
 
-
-
     // Disable this function to avoid unnecessary ownership operations, which may lead to losing the contract's control forever.
     function renounceOwnership() public pure override {
         require(false, "can't renounce");
     }
 
-    function _verifyProof(bytes32[] memory proof, uint256 index, address addr) private view {
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(addr, index))));
+    function _verifyProof(
+        bytes32[] memory proof,
+        uint256 index,
+        address addr
+    ) private view {
+        bytes32 leaf = keccak256(
+            bytes.concat(keccak256(abi.encode(addr, index)))
+        );
         require(MerkleProof.verify(proof, _merkleRoot, leaf), "Invalid proof");
     }
 }

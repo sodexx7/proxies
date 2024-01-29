@@ -32,7 +32,8 @@ contract StakingContract is IERC721Receiver {
      * @dev mapping a staker address to a nft's cumulative reward  while this nft was been withdrawed.
      * only apply when nft was withdrawed, but the reward was not witdraw
      */
-    mapping(address => mapping(uint256 => uint256)) private _unWithdrawnRewardsEachNFT;
+    mapping(address => mapping(uint256 => uint256))
+        private _unWithdrawnRewardsEachNFT;
 
     // mapping an nft to originalOwner
     mapping(uint256 => address) private _originalOwner;
@@ -40,13 +41,25 @@ contract StakingContract is IERC721Receiver {
     // mapping an nft to its last timestampe of staking
     mapping(uint256 => uint256) private _stakeLastBeginTime;
 
-    event Stake(address indexed staker, uint256 indexed tokenId, uint256 timestampe);
+    event Stake(
+        address indexed staker,
+        uint256 indexed tokenId,
+        uint256 timestampe
+    );
 
     event WithdrawNFT(address indexed staker, uint256 indexed tokenId);
 
-    event WithdrawRewards(address indexed withdrawer, uint256 indexed tokenId, uint256 rewardAmount);
+    event WithdrawRewards(
+        address indexed withdrawer,
+        uint256 indexed tokenId,
+        uint256 rewardAmount
+    );
 
-    event UpdateUnwithdrawnRewards(address indexed staker, uint256 indexed tokenId, uint256 CumuRewards);
+    event UpdateUnwithdrawnRewards(
+        address indexed staker,
+        uint256 indexed tokenId,
+        uint256 CumuRewards
+    );
 
     constructor(address nft1, address rewardToken) {
         _nft1 = NFT721(nft1);
@@ -62,11 +75,13 @@ contract StakingContract is IERC721Receiver {
         uint256 tokenId,
         bytes calldata
     )
-        /**
-         * data
-         */
         external
-        returns (bytes4)
+        returns (
+            /**
+             * data
+             */
+            bytes4
+        )
     {
         // Only the _nft1 can call this funciton, security consideration
         require(msg.sender == address(_nft1), "illeage call");
@@ -103,9 +118,17 @@ contract StakingContract is IERC721Receiver {
         delete _stakeLastBeginTime[tokenId];
 
         if (rewardTokenAmount > 0) {
-            uint256 unwithdrawnCumuRewards = _unWithdrawnRewardsEachNFT[msg.sender][tokenId] + rewardTokenAmount;
-            _unWithdrawnRewardsEachNFT[msg.sender][tokenId] = unwithdrawnCumuRewards;
-            emit UpdateUnwithdrawnRewards(msg.sender, tokenId, unwithdrawnCumuRewards);
+            uint256 unwithdrawnCumuRewards = _unWithdrawnRewardsEachNFT[
+                msg.sender
+            ][tokenId] + rewardTokenAmount;
+            _unWithdrawnRewardsEachNFT[msg.sender][
+                tokenId
+            ] = unwithdrawnCumuRewards;
+            emit UpdateUnwithdrawnRewards(
+                msg.sender,
+                tokenId,
+                unwithdrawnCumuRewards
+            );
         }
     }
 
@@ -124,7 +147,10 @@ contract StakingContract is IERC721Receiver {
     function withdrawRewards(uint256 tokenId) external {
         // cumulative unwithdrawn awards
         uint256 cumuReward = _unWithdrawnRewardsEachNFT[msg.sender][tokenId];
-        require(_originalOwner[tokenId] == msg.sender || cumuReward > 0, "No reward can withdraw");
+        require(
+            _originalOwner[tokenId] == msg.sender || cumuReward > 0,
+            "No reward can withdraw"
+        );
 
         _unWithdrawnRewardsEachNFT[msg.sender][tokenId] = 0;
 
@@ -134,8 +160,12 @@ contract StakingContract is IERC721Receiver {
             require(rewardTokenAmount + cumuReward > 0, "No reward for now");
             _rewardToken.mint(msg.sender, rewardTokenAmount + cumuReward);
             _stakeLastBeginTime[tokenId] = block.timestamp;
-            emit WithdrawRewards(msg.sender, tokenId, rewardTokenAmount + cumuReward);
-        } else { 
+            emit WithdrawRewards(
+                msg.sender,
+                tokenId,
+                rewardTokenAmount + cumuReward
+            );
+        } else {
             // nft has been withdrawed, only withDraw the cumuReward.
             _rewardToken.mint(msg.sender, cumuReward);
             emit WithdrawRewards(msg.sender, tokenId, cumuReward);
@@ -156,9 +186,13 @@ contract StakingContract is IERC721Receiver {
      *
      * @param tokenId staked NFT
      */
-    function calculateRewards(uint256 tokenId) public view returns (uint256 rewardToken) {
-        return _stakeLastBeginTime[tokenId] > 0
-            ? (block.timestamp - _stakeLastBeginTime[tokenId]) / 27 * REWARD_EACH_27_SECONDS
-            : 0;
+    function calculateRewards(
+        uint256 tokenId
+    ) public view returns (uint256 rewardToken) {
+        return
+            _stakeLastBeginTime[tokenId] > 0
+                ? ((block.timestamp - _stakeLastBeginTime[tokenId]) / 27) *
+                    REWARD_EACH_27_SECONDS
+                : 0;
     }
 }

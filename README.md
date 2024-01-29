@@ -1,7 +1,9 @@
+## Proxies
 
+- [RelatedQuestions](RelatedQuestions.md)
 
-* [RelatedQuestions](RelatedQuestions.md)
+- [Ethernaut](Ethernaut.md)
 
-* [Ethernaut](Ethernaut.md)
+- [Week2_upgradeable](UpgradeableWeek2Protocols.md)
 
-* [Week2_upgradeable](UpgradeableWeek2Protocols.md)
+- [DelegatecallDifferentSituationsTries](DelegatecallDifferentSituationsTries.md)

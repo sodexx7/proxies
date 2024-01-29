@@ -22,7 +22,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
  * and the unWithdrawnRewards will be recorded, which will be clear when the user withdrawRewards the next time.
  *
  */
-contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSUpgradeable {
+contract StakingContractUpgrade is
+    IERC721Receiver,
+    Ownable2StepUpgradeable,
+    UUPSUpgradeable
+{
     // staking nft address
     NFT721Upgrade public _nft1;
 
@@ -36,7 +40,8 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
      * @dev mapping a staker address to a nft's cumulative reward  while this nft was been withdrawed.
      * only apply when nft was withdrawed, but the reward was not witdraw
      */
-    mapping(address => mapping(uint256 => uint256)) private _unWithdrawnRewardsEachNFT;
+    mapping(address => mapping(uint256 => uint256))
+        private _unWithdrawnRewardsEachNFT;
 
     // mapping an nft to originalOwner
     mapping(uint256 => address) private _originalOwner;
@@ -44,13 +49,25 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
     // mapping an nft to its last timestampe of staking
     mapping(uint256 => uint256) private _stakeLastBeginTime;
 
-    event Stake(address indexed staker, uint256 indexed tokenId, uint256 timestampe);
+    event Stake(
+        address indexed staker,
+        uint256 indexed tokenId,
+        uint256 timestampe
+    );
 
     event WithdrawNFT(address indexed staker, uint256 indexed tokenId);
 
-    event WithdrawRewards(address indexed withdrawer, uint256 indexed tokenId, uint256 rewardAmount);
+    event WithdrawRewards(
+        address indexed withdrawer,
+        uint256 indexed tokenId,
+        uint256 rewardAmount
+    );
 
-    event UpdateUnwithdrawnRewards(address indexed staker, uint256 indexed tokenId, uint256 CumuRewards);
+    event UpdateUnwithdrawnRewards(
+        address indexed staker,
+        uint256 indexed tokenId,
+        uint256 CumuRewards
+    );
 
     // constructor(address nft1, address rewardToken) {
     //     _nft1 = NFT721Upgrade(nft1);
@@ -62,13 +79,15 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
         _disableInitializers();
     }
 
-    function initialize(address nft1, address rewardToken) external initializer {
-         _nft1 = NFT721Upgrade(nft1);
+    function initialize(
+        address nft1,
+        address rewardToken
+    ) external initializer {
+        _nft1 = NFT721Upgrade(nft1);
         _rewardToken = RewardTokenUpgrade(rewardToken);
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}
-
 
     function onERC721Received(
         address,
@@ -79,11 +98,13 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
         uint256 tokenId,
         bytes calldata
     )
-        /**
-         * data
-         */
         external
-        returns (bytes4)
+        returns (
+            /**
+             * data
+             */
+            bytes4
+        )
     {
         // Only the _nft1 can call this funciton, security consideration
         require(msg.sender == address(_nft1), "illeage call");
@@ -120,9 +141,17 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
         delete _stakeLastBeginTime[tokenId];
 
         if (rewardTokenAmount > 0) {
-            uint256 unwithdrawnCumuRewards = _unWithdrawnRewardsEachNFT[msg.sender][tokenId] + rewardTokenAmount;
-            _unWithdrawnRewardsEachNFT[msg.sender][tokenId] = unwithdrawnCumuRewards;
-            emit UpdateUnwithdrawnRewards(msg.sender, tokenId, unwithdrawnCumuRewards);
+            uint256 unwithdrawnCumuRewards = _unWithdrawnRewardsEachNFT[
+                msg.sender
+            ][tokenId] + rewardTokenAmount;
+            _unWithdrawnRewardsEachNFT[msg.sender][
+                tokenId
+            ] = unwithdrawnCumuRewards;
+            emit UpdateUnwithdrawnRewards(
+                msg.sender,
+                tokenId,
+                unwithdrawnCumuRewards
+            );
         }
     }
 
@@ -141,7 +170,10 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
     function withdrawRewards(uint256 tokenId) external {
         // cumulative unwithdrawn awards
         uint256 cumuReward = _unWithdrawnRewardsEachNFT[msg.sender][tokenId];
-        require(_originalOwner[tokenId] == msg.sender || cumuReward > 0, "No reward can withdraw");
+        require(
+            _originalOwner[tokenId] == msg.sender || cumuReward > 0,
+            "No reward can withdraw"
+        );
 
         _unWithdrawnRewardsEachNFT[msg.sender][tokenId] = 0;
 
@@ -151,8 +183,12 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
             require(rewardTokenAmount + cumuReward > 0, "No reward for now");
             _rewardToken.mint(msg.sender, rewardTokenAmount + cumuReward);
             _stakeLastBeginTime[tokenId] = block.timestamp;
-            emit WithdrawRewards(msg.sender, tokenId, rewardTokenAmount + cumuReward);
-        } else { 
+            emit WithdrawRewards(
+                msg.sender,
+                tokenId,
+                rewardTokenAmount + cumuReward
+            );
+        } else {
             // nft has been withdrawed, only withDraw the cumuReward.
             _rewardToken.mint(msg.sender, cumuReward);
             emit WithdrawRewards(msg.sender, tokenId, cumuReward);
@@ -173,9 +209,13 @@ contract StakingContractUpgrade is IERC721Receiver,Ownable2StepUpgradeable,UUPSU
      *
      * @param tokenId staked NFT
      */
-    function calculateRewards(uint256 tokenId) public view returns (uint256 rewardToken) {
-        return _stakeLastBeginTime[tokenId] > 0
-            ? (block.timestamp - _stakeLastBeginTime[tokenId]) / 27 * REWARD_EACH_27_SECONDS
-            : 0;
+    function calculateRewards(
+        uint256 tokenId
+    ) public view returns (uint256 rewardToken) {
+        return
+            _stakeLastBeginTime[tokenId] > 0
+                ? ((block.timestamp - _stakeLastBeginTime[tokenId]) / 27) *
+                    REWARD_EACH_27_SECONDS
+                : 0;
     }
 }
