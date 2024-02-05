@@ -39,9 +39,11 @@
    5. For using UUPs, inherited UUPSUpgradeable. which should implement \_authorizeUpgrade that check only the owner can execute upgrade.
    6. [on-chain code](https://sepolia.etherscan.io/address/0x02467368e78B5e09B42fe385bBEbC5AAF06b4d90#code)
 
-3. [StakingContractUpgrade](contracts/SmartContractTrioForUpgrade/StakingContractUpgrade.sol) 0. Inherited Ownable2StepUpgradeable, the previous version didn't add it
+3. [StakingContractUpgrade](contracts/SmartContractTrioForUpgrade/StakingContractUpgrade.sol)
 
-   1. The related instance should use upgradeContract, and delete the immutable for proxy usage
+   1. Inherited Ownable2StepUpgradeable, the previous version didn't add it
+
+   2. The related instance should use upgradeContract, and delete the immutable for proxy usage
 
    ```
    // staking nft address
@@ -59,7 +61,7 @@
 
    ```
 
-   2. Convert constructor to initialize
+   3. Convert constructor to initialize
 
    ```
     function initialize(address nft1, address rewardToken) external initializer {
@@ -69,7 +71,7 @@
 
    ```
 
-   3. Security consideration
+   4. Security consideration
 
    ```
           /// @custom:oz-upgrades-unsafe-allow constructor
@@ -78,8 +80,8 @@
           }
    ```
 
-   4. For using UUPs, inherited UUPSUpgradeable. which should implement \_authorizeUpgrade that check only the owner can execute upgrade.
-   5. [on-chain code](https://sepolia.etherscan.io/address/0x08de053258ac125DA4E5bDdCDC5125672f6C4D23#code)
+   5. For using UUPs, inherited UUPSUpgradeable. which should implement \_authorizeUpgrade that check only the owner can execute upgrade.
+   6. [on-chain code](https://sepolia.etherscan.io/address/0x08de053258ac125DA4E5bDdCDC5125672f6C4D23#code)
 
 4. [NFT721UpgradeWithGodMod](contracts/SmartContractTrioForUpgrade/NFT721UpgradeWithGodMod.sol)
    1. add function specificalTransfer

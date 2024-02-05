@@ -38,14 +38,16 @@ While updating proxy, involving below points
 
 6. **storage layout of the new implementation contract should compatible with old one**
 
-   - The cases including changig the storage layout, changing the previous slot type, renaming are all disallowed, which will break the storage layout of the proxy address, no matter how implementation contract chaning, must keep the consistant of storage layout of the proxy address.
+   - The cases including changing the storage layout, changing the previous slot type, renaming are all disallowed, which will break the storage layout of the proxy address, no matter how implementation contract changing, must keep the consistant of storage layout of the proxy address.
      the only accept change is to add the new slots after old storage layout.
    - [code](https://github.com/sodexx7/proxies/blob/main/contracts/TonyImplV2.sol#L11)
 
 ### 2. What is a beacon proxy used for?
 
-- For Beacon proxy type, beside the proxy and implement contract, there exists the Beacon contract storing the implementation contract address, and all proxies points to beacon contract. Comparing Transparent and UUPs, number of beacon proxies can be upgraded atomically at the same time by upgrading the beacon that they point to.
-- Sometimes need to deplpy many same contracts at the same times, as deploying many [ERC-1167 Minimal Clones](https://www.rareskills.io/post/eip-1167-minimal-proxy-standard-with-initialization-clone-pattern) or [ERC-3448 Metaproxy](https://www.rareskills.io/post/erc-3448-metaproxy-clone). For this situation can apply beacon proxy to deploy many clones contract, advantanges: 1) deploy many clones at the sametime 2) save gas for deploying and executing. THIS should check, ERC-1167 Minimal Clones can be used for beacon proxy?
+- For Beacon proxy type, beside the proxy and implement contract, there exists the Beacon contract storing the implementation contract address, and all proxies points to beacon contract. Comparing Transparent and UUPs, many beacon proxies can be upgraded atomically at the same time by upgrading the beacon that they point to.
+- Sometimes need to deplpy many same contracts at the same times, Does this can can be used with [ERC-1167 Minimal Clones](https://www.rareskills.io/post/eip-1167-minimal-proxy-standard-with-initialization-clone-pattern) or [ERC-3448 Metaproxy](https://www.rareskills.io/post/erc-3448-metaproxy-clone)?.
+
+* [USDC demo](https://polygonscan.com/address/0xb254554636a3ff52e8b2d0f06203921c137e10d5#code)
 
 ### 3. Why does the openzeppelin upgradeable tool insert something like uint256[50] private \_\_gap; inside the contracts? To see it, create an upgradeable smart contract that has a parent contract and look in the parent.
 
@@ -75,16 +77,15 @@ contract TonyImplWithParentContractV1NoInitializable is ParentContractTest {
 
 ```
 
-- adding code like this `uint256[50] private __gap`, which main enough slots for future changes. But for now, seems It's recommended using Namespaced Storage Layout [EIP-7201](https://eips.ethereum.org/EIPS/eip-7201)
-- todo check https://eips.ethereum.org/EIPS/eip-7201, OpenZepllin[Initializable](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/a5c4cd8182103aa96c2147433bf1bfb8fde63ca9/contracts/proxy/utils/Initializable.sol#L63) have used the EIP7201.
+- adding code like this `uint256[50] private __gap`, which maintain enough slots for future changes. But for now, seems It's recommended using Namespaced Storage Layout [EIP-7201](https://eips.ethereum.org/EIPS/eip-7201)
+- https://eips.ethereum.org/EIPS/eip-7201, OpenZepllin[Initializable](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/a5c4cd8182103aa96c2147433bf1bfb8fde63ca9/contracts/proxy/utils/Initializable.sol#L63) have used the EIP7201.
 
 ### 4. What is the difference between initializing the proxy and initializing the implementation? Do you need to do both? When do they need to be done?
 
-(TODO CHECK)
+- Initializing the proxy will set the initial params which was used by the proxy contract, the core params includes the owner of the proxy, set the implementation contract address. Initializing the implementation contract were based on the implementation contract, generally, these variables in implementation contract
+  wasn't used by the proxy contract.
 
-- Initializing the proxy will set the initial params which was used by the proxy contract, the core params includes the owner of the proxy, set the implementation contract address. Initializing the implementation I think the initial params were based on the implementation contract, generally, there are no relationships between these params and proxy contract. the states in the implementation can ignored.
-
-- For the Transparent or UUPS, just initializing the proxy. No need initializing the implementation. One specifical case is beaconProxy, should initializing the beacon which should set the implementation contract address.
+- For the Transparent or UUPS, just initializing the proxy by calling the implementation contract's corrospending's function. One specifical case is beaconProxy, should initializing the beacon which should set the implementation contract address.
 - Firstly, should deploy the implementation contract, then deploy the proxy and initializing the proxy by delegatcall the implementation contract.
 
 ### 5. What is the use for the reinitializer? Provide a minimal example of proper use in Solidity?
