@@ -21,7 +21,7 @@ contract DelegateCallTry10 {
 }
 
 contract A {
-    address immutable _b;
+    address immutable _b; // there must be as immutable otherwise delegatecakk wiil used the DelegateCallTry10's first slot.
 
     constructor(address b) {
         _b = b;
